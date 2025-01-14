@@ -7,6 +7,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.8.0
 	github.com/IBM/sarama v1.43.3
 	github.com/linkedin/goavro v2.1.0+incompatible
+	github.com/mattn/go-sqlite3 v1.14.24
 )
 
 require (
