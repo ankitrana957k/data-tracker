@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -18,6 +19,12 @@ import (
 
 func main() {
 	clearMsgAfter := 10
+
+	// Create and truncate table
+	err := service.Migrations()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	a := app.NewWithID("com.eventhub.datatracker")
 	window := a.NewWindow("Data Tracker v0.1")
@@ -69,14 +76,14 @@ func (g *GUI) UpdateUIWithNewConnection(creationChan chan models.Config, clearMs
 		}
 
 		go func() {
-			err := kafkaOBJ.ReadFromConsumerGroup(client)
+			err := kafkaOBJ.Read(client)
 			if err != nil {
 				dialog.ShowError(err, g.Window)
 			}
 		}()
 
 		go func() {
-			err := kafkaOBJ.StartListening(g.WidgetMap)
+			err := kafkaOBJ.Listen(g.WidgetMap)
 			if err != nil {
 				dialog.ShowError(err, g.Window)
 			}

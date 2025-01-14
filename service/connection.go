@@ -50,7 +50,7 @@ func (k *KafkaOBJ) SetupEventhub() (sarama.Client, error) {
 	return client, nil
 }
 
-func (k *KafkaOBJ) ReadFromConsumerGroup(client sarama.Client) error {
+func (k *KafkaOBJ) Read(client sarama.Client) error {
 	kafkaConsumer := datastore.KafkaConsumer{
 		Configs: &k.Configs,
 	}
@@ -89,7 +89,7 @@ func (k *KafkaOBJ) ReadFromConsumerGroup(client sarama.Client) error {
 	return nil
 }
 
-func (k *KafkaOBJ) StartListening(widgetMap map[string]*widget.Label) error {
+func (k *KafkaOBJ) Listen(widgetMap map[string]*widget.Label) error {
 	var wg sync.WaitGroup
 
 	for topic := range k.DataChannel {
@@ -98,7 +98,7 @@ func (k *KafkaOBJ) StartListening(widgetMap map[string]*widget.Label) error {
 		go func(topic string) error {
 			defer wg.Done()
 
-			err := k.ListenAndOverwriteText(topic, widgetMap[topic])
+			err := k.ConsumeAndOverwriteText(topic, widgetMap[topic])
 			if err != nil {
 				return fmt.Errorf("error displaying data for topic %s: %v", topic, err)
 			}
@@ -113,7 +113,7 @@ func (k *KafkaOBJ) StartListening(widgetMap map[string]*widget.Label) error {
 	return nil
 }
 
-func (k *KafkaOBJ) ListenAndOverwriteText(topic string, textWidget *widget.Label) error {
+func (k *KafkaOBJ) ConsumeAndOverwriteText(topic string, textWidget *widget.Label) error {
 	channel := k.DataChannel[topic]
 	count := 1
 
