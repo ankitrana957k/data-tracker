@@ -93,18 +93,22 @@ func (g *GUI) UpdateUIWithNewConnection(creationChan chan models.Config, clearMs
 
 func (g *GUI) AddEventhubUI(k *service.KafkaOBJ) error {
 	for _, topic := range k.Configs.TOPICS {
-		textWidget := utils.CreateTextWidget()
-
-		scrollView := container.NewVScroll(textWidget)
-		tabItem := container.NewTabItemWithIcon(topic, theme.ComputerIcon(), scrollView)
-
-		defaultText := fmt.Sprintf("Establishing a connection with %s\n", topic)
-		textWidget.SetText(defaultText)
-
 		_, ok := k.DataChannel[topic]
 		if ok {
 			return fmt.Errorf("same topic %s can't be added twice", topic)
 		}
+
+		textWidget := utils.CreateTextWidget()
+
+		clearButton := widget.NewButtonWithIcon("Clear", theme.ContentClearIcon(), func() {
+			textWidget.SetText("")
+		})
+
+		c := container.NewStack(container.NewScroll(textWidget), container.NewBorder(nil, container.NewHBox(&layout.Spacer{}, clearButton), nil, nil))
+		tabItem := container.NewTabItemWithIcon(topic, theme.ComputerIcon(), c)
+
+		defaultText := fmt.Sprintf("Establishing a connection with %s\n", topic)
+		textWidget.SetText(defaultText)
 
 		k.DataChannel[topic] = make(chan models.Message)
 
